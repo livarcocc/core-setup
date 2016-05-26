@@ -66,7 +66,7 @@ namespace Microsoft.DotNet.Host.Build
         public static BuildTargetResult PackDotnetDebTool(BuildTargetContext c)
         {
             var dotnet = DotNetCli.Stage0;
-            var versionSuffix = c.BuildContext.Get<BuildVersion>("BuildVersion").CommitCount;
+            var versionSuffix = c.BuildContext.Get<BuildVersion>("BuildVersion").CommitCountString;
 
             dotnet.Pack(
                     Path.Combine(Dirs.RepoRoot, "tools", "dotnet-deb-tool", "project.json"),
@@ -85,6 +85,8 @@ namespace Microsoft.DotNet.Host.Build
                     File.Copy(packageFile, destinationPath, overwrite: true);
                 }
             }
+
+            return c.Success();
         }
 
         [Target]
