@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using static Microsoft.DotNet.Cli.Build.Framework.BuildHelpers;
 
-namespace Microsoft.DotNet.Cli.Build.Utils
+namespace Microsoft.DotNet.Cli.Build
 {
     public class DebPackageCreator
     {
