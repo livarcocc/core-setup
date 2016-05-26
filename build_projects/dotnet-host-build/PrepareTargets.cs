@@ -75,10 +75,16 @@ namespace Microsoft.DotNet.Host.Build
                     .Execute()
                     .EnsureSuccessful();
 
-            File.Copy(
-                Path.Combine(Dirs.PackagesIntermediate, "dotnet-deb-tool.nupkg"), 
-                Path.Combine(Dirs.Packages, "dotnet-deb-tool.nupkg"),
-                true);
+            var packageFiles = Directory.EnumerateFiles(Dirs.PackagesIntermediate, "dotnet-deb-tool.*.nupkg");
+
+            foreach (var packageFile in packageFiles)
+            {
+                if (!packageFile.EndsWith(".symbols.nupkg"))
+                {
+                    var destinationPath = Path.Combine(Dirs.Packages, Path.GetFileName(packageFile));
+                    File.Copy(packageFile, destinationPath, overwrite: true);
+                }
+            }
 
             return c.Success();
         }
