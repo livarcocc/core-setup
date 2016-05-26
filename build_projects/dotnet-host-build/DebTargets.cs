@@ -103,8 +103,7 @@ namespace Microsoft.DotNet.Host.Build
                 version,
                 inputRoot,
                 debianConfigVariables,
-                debFile,
-                manPagesDir: null);
+                debFile);
 
             return c.Success();
         }
