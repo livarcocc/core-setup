@@ -31,6 +31,13 @@ namespace Microsoft.DotNet.Host.Build
             var debFile = c.BuildContext.Get<string>("SharedHostInstallerFile");
             var objRoot = Path.Combine(Dirs.Output, "obj", "debian", "sharedhost");
             var manPagesDir = Path.Combine(Dirs.RepoRoot, "Documentation", "manpages");
+            var debianConfigFile = Path.Combine(Dirs.RepoRoot, 
+                "packaging", "deb-package", "host", "dotnet-sharedhost-debian_config.json");
+
+            var debianConfigVariables = new Dictionary<string, string>()
+            {
+                { "SHARED_HOST_BRAND_NAME", Monikers.SharedHostBrandName }
+            };
 
             if (Directory.Exists(objRoot))
             {
@@ -39,11 +46,20 @@ namespace Microsoft.DotNet.Host.Build
 
             Directory.CreateDirectory(objRoot);
 
-            Cmd(Path.Combine(Dirs.RepoRoot, "packaging", "deb-package", "host", "package-sharedhost-debian.sh"),
-                    "--input", inputRoot, "--output", debFile, "-b", Monikers.SharedHostBrandName,
-                    "--obj-root", objRoot, "--version", version, "-m", manPagesDir)
-                    .Execute()
-                    .EnsureSuccessful();
+            var debCreator = new DebPackageCreator(
+                DotNetCli.Stage0,
+                objRoot,
+                dotnetDebToolPackageSource: Dirs.Packages);
+
+            debCreator.CreateDeb(
+                debianConfigFile, 
+                packageName, 
+                version, 
+                inputRoot, 
+                debianConfigVariables, 
+                debFile, 
+                manPagesDir);
+
             return c.Success();
         }
 
@@ -57,6 +73,17 @@ namespace Microsoft.DotNet.Host.Build
             var inputRoot = c.BuildContext.Get<string>("SharedFrameworkPublishRoot");
             var debFile = c.BuildContext.Get<string>("SharedFrameworkInstallerFile");
             var objRoot = Path.Combine(Dirs.Output, "obj", "debian", "sharedframework");
+            var debianConfigFile = Path.Combine(Dirs.RepoRoot,
+                "packaging", "deb-package", "sharedframework", "dotnet-sharedframework-debian_config.json");
+
+            var debianConfigVariables = new Dictionary<string, string>()
+            {
+                { "SHARED_HOST_DEBIAN_VERSION", sharedHostVersion },
+                { "SHARED_FRAMEWORK_DEBIAN_PACKAGE_NAME", packageName },
+                { "SHARED_FRAMEWORK_NUGET_NAME", Monikers.SharedFrameworkName },
+                { "SHARED_FRAMEWORK_NUGET_VERSION",  c.BuildContext.Get<string>("SharedFrameworkNugetVersion")},
+                { "SHARED_FRAMEWORK_BRAND_NAME", Monikers.SharedFxBrandName }
+            };
 
             if (Directory.Exists(objRoot))
             {
@@ -65,14 +92,20 @@ namespace Microsoft.DotNet.Host.Build
 
             Directory.CreateDirectory(objRoot);
 
-            Cmd(Path.Combine(Dirs.RepoRoot, "packaging", "deb-package", "sharedframework", "package-sharedframework-debian.sh"),
-                    "--input", inputRoot, "--output", debFile, "--package-name", packageName, "-b", Monikers.SharedFxBrandName,
-                    "--shared-host-version", sharedHostVersion,
-                    "--framework-nuget-name", Monikers.SharedFrameworkName,
-                    "--framework-nuget-version", c.BuildContext.Get<string>("SharedFrameworkNugetVersion"),
-                    "--obj-root", objRoot, "--version", version)
-                    .Execute()
-                    .EnsureSuccessful();
+            var debCreator = new DebPackageCreator(
+                DotNetCli.Stage0,
+                objRoot,
+                dotnetDebToolPackageSource: Dirs.Packages);
+
+            debCreator.CreateDeb(
+                debianConfigFile,
+                packageName,
+                version,
+                inputRoot,
+                debianConfigVariables,
+                debFile,
+                manPagesDir: null);
+
             return c.Success();
         }
 
