@@ -75,16 +75,10 @@ namespace Microsoft.DotNet.Host.Build
                     .Execute()
                     .EnsureSuccessful();
 
-            var packageFiles = Directory.EnumerateFiles(Dirs.PackagesIntermediate, "*.nupkg");
-
-            foreach (var packageFile in packageFiles)
-            {
-                if (!packageFile.EndsWith(".symbols.nupkg"))
-                {
-                    var destinationPath = Path.Combine(Dirs.Packages, Path.GetFileName(packageFile));
-                    File.Copy(packageFile, destinationPath, overwrite: true);
-                }
-            }
+            File.Copy(
+                Path.Combine(Dirs.PackagesIntermediate, "dotnet-deb-tool.nupkg"), 
+                Path.Combine(Dirs.Packages, "dotnet-deb-tool.nupkg"),
+                true);
 
             return c.Success();
         }
@@ -270,6 +264,11 @@ namespace Microsoft.DotNet.Host.Build
 
             dotnet.Restore("--verbosity", "verbose", "--disable-parallel")
                 .WorkingDirectory(Path.Combine(c.BuildContext.BuildDirectory, "tools", "independent", "RuntimeGraphGenerator"))
+                .Execute()
+                .EnsureSuccessful();
+
+            dotnet.Restore("--verbosity", "verbose", "--disable-parallel")
+                .WorkingDirectory(Path.Combine(c.BuildContext.BuildDirectory, "tools", "dotnet-deb-tool"))
                 .Execute()
                 .EnsureSuccessful();
 
