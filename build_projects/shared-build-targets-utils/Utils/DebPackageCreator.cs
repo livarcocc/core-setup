@@ -128,12 +128,13 @@ namespace Microsoft.DotNet.Cli.Build
 
         private void CreateAndRestoreToolConsumingProject()
         {
+            FS.Mkdirp(_consumingProjectDirectory);
             var projectJsonFile = Path.Combine(_consumingProjectDirectory, "project.json");
-            Mkdirp(_consumingProjectDirectory);
             if (File.Exists(projectJsonFile))
             {
                 File.Delete(projectJsonFile);
             }
+            
             File.WriteAllText(projectJsonFile, GetDotnetDebProjectJsonContents());
 
             _dotnet.Restore(
