@@ -134,16 +134,24 @@ namespace Microsoft.DotNet.Cli.Build
             {
                 File.Delete(projectJsonFile);
             }
-            
-            File.WriteAllText(projectJsonFile, GetDotnetDebProjectJsonContents());
 
-            _dotnet.Restore(
-                _dotnetDebToolPackageSource == null
-                    ? ""
-                    : $"-f {_dotnetDebToolPackageSource}")
-                .WorkingDirectory(Path.GetDirectoryName(projectJsonFile))
-                .Execute()
-                .EnsureSuccessful();
+            File.WriteAllText(projectJsonFile, GetDotnetDebProjectJsonContents());
+            
+            if (_dotnetDebToolPackageSource != null)
+            {
+                _dotnet.Restore("-f", $"{_dotnetDebToolPackageSource}")
+                    .WorkingDirectory(Path.GetDirectoryName(projectJsonFile))
+                    .Execute()
+                    .EnsureSuccessful();
+            }
+            else
+            {
+                _dotnet.Restore()
+                    .WorkingDirectory(Path.GetDirectoryName(projectJsonFile))
+                    .Execute()
+                    .EnsureSuccessful();
+            }
+            
         }
 
         private string GetDotnetDebProjectJsonContents()
