@@ -89,30 +89,23 @@ namespace Microsoft.DotNet.Cli.Build
                 var arch = RuntimeEnvironment.RuntimeArchitecture;
                 rid = $"win7-{arch}";
             }
-            else if (CurrentPlatform.IsUbuntu)
-            {
-                rid = "ubuntu.{RuntimeEnvironment.OperatingSystemVersion}-x64";
-            }
-            else if (CurrentPlatform.IsCentOS || CurrentPlatform.IsRHEL)
-            {
-                // CentOS runtime is in the runtime.rhel.7-x64... package.
-                rid = "rhel.7-x64";
-            }
             else if (CurrentPlatform.IsOSX)
             {
                 rid = "osx.10.10-x64";
             }
-            else if (CurrentPlatform.IsDebian)
+            else if (CurrentPlatform.IsCentOS || CurrentPlatform.IsRHEL)
             {
-                rid = "debian.8-x64";
+                // CentOS runtime is in the runtime.rhel.7-x64... package as are all
+                // versions of RHEL
+                rid = "rhel.7-x64";
             }
-            else if (CurrentPlatform.IsFedora)
+            else if (CurrentPlatform.IsLinux)
             {
-                rid = "fedora.{RuntimeEnvironment.OperatingSystemVersion}-x64";
+                rid = RuntimeEnvironment.GetRuntimeIdentifier();
             }
 
             return rid;
-        }  
+        }
 
         public void CrossgenDirectory(string sharedFxPath, string pathToAssemblies)
         {
